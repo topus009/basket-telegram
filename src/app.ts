@@ -1,19 +1,29 @@
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot, {ConstructorOptions} from "node-telegram-bot-api";
 import axios from 'axios';
 
-const bot = new TelegramBot(`${process.env.TOKEN}`, {polling: true});
+const options: ConstructorOptions = {
+  polling: true,
+}
+
+const bot = new TelegramBot(`${process.env.TOKEN}`, options);
 const BACKEND_URL = process.env.BACKEND_URL;
 
-(async () => {
+const init = async () => {
   bot.on("message", async (msg) => {
     if (msg?.from?.id) {
-      const res = await axios({
-        url: BACKEND_URL,
-        method: 'GET',
-        responseType: 'arraybuffer'
-      });
+      try {
+        const res = await axios({
+          url: BACKEND_URL,
+          method: 'GET',
+          responseType: 'arraybuffer'
+        });
 
-      await bot.sendPhoto(msg.from.id, res.data);
+        await bot.sendPhoto(msg.from.id, res.data);
+      } catch (error) {
+        console.log(error)
+      }
     }
   });
-})()
+}
+
+init();
