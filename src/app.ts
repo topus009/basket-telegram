@@ -74,7 +74,7 @@ app.listen(serverOpts, (err, address) => {
 
   if (err) {
     app.log.error(err)
-    process.exit(1)
+    // process.exit(1)
   }
 });
 
