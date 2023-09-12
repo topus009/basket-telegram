@@ -1,0 +1,43 @@
+{
+  "name": "fastify-hello-world",
+  "version": "1.0.0",
+  "description": "A Fastify example to deploy to Render",
+  "main": "/src/app.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "etsc",
+    "prod": "node dist/app.js",
+    "start:dev": "npm run development dev",
+    "start:prod": "npm run production prod",
+    "production": "dotenv-run-script .env.production --",
+    "development": "dotenv-run-script .env.development --"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/render-examples/fastify-hello-world.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/render-examples/fastify-hello-world/issues"
+  },
+  "homepage": "https://github.com/render-examples/fastify-hello-world#readme",
+  "dependencies": {
+    "axios": "^1.5.0",
+    "dotenv": "^16.3.1",
+    "dotenv-run-script": "^0.3.0",
+    "node-telegram-bot-api": "^0.61.0"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "devDependencies": {
+    "@types/node": "18.16.0",
+    "@types/node-telegram-bot-api": "0.61.0",
+    "esbuild": "^0.19.2",
+    "esbuild-node-tsc": "^2.0.5",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
