@@ -39,17 +39,17 @@ const serverOpts: FastifyListenOptions = {
 const bot = new Telegraf(`${token}`);
 const app = fastify();
 
-if (isProd) {
-  if (!webhookDomain) throw new Error('"WEBHOOK_DOMAIN" env var is required!');
+// if (isProd) {
+//   if (!webhookDomain) throw new Error('"WEBHOOK_DOMAIN" env var is required!');
 
-  app.post(bot.secretPathComponent(), async (req, rep) => {
-    const webhook = await bot.createWebhook({
-      domain: webhookDomain
-    });
+//   app.post(bot.secretPathComponent(), async (req, rep) => {
+//     const webhook = await bot.createWebhook({
+//       domain: webhookDomain
+//     });
 
-    return webhook(req.raw, rep.raw)
-  });
-}
+//     return webhook(req.raw, rep.raw)
+//   });
+// }
 
 app.register(healthCheck)
 
