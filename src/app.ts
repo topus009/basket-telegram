@@ -99,7 +99,7 @@ process.on('SIGINT', handleExit());
 process.on('SIGUSR1', handleExit());
 process.on('SIGUSR2', handleExit());
 process.on('SIGTERM', handleExit())
-process.on('uncaughtException', handleExit)
+// process.on('uncaughtException', handleExit)
 // -----------------------------------------------
 // const others = [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`]
 // others.forEach((eventType) => {
