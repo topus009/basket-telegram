@@ -18,15 +18,6 @@ const {
   WEBHOOK_DOMAIN: webhookDomain,
 } = process.env;
 
-console.log({
-  NODE_ENV,
-  BACKEND_URL,
-  FASTTIFY_PORT,
-  BOT_PORT,
-  token,
-  webhookDomain,
-})
-
 const isProd = NODE_ENV === "production"
 
 const port = parseInt(FASTTIFY_PORT || "3001", 10);
@@ -38,6 +29,14 @@ const serverOpts: FastifyListenOptions = {
 }
 const bot = new Telegraf(`${token}`);
 const app = fastify();
+
+try {
+  bot.stop('INIT')
+} catch (error) {
+  console.log("================================")
+  console.log(error)
+  console.log("================================")
+}
 
 // if (isProd) {
 //   if (!webhookDomain) throw new Error('"WEBHOOK_DOMAIN" env var is required!');
@@ -74,9 +73,21 @@ app.listen(serverOpts, (err, address) => {
 
   if (err) {
     app.log.error(err)
-    // process.exit(1)
+    console.log(err)
+    process.exit(1)
   }
 });
 
-process.once('SIGINT', () => bot.stop('SIGINT'))
+process.on('exit', () => bot.stop('SIGTERM'));
+//catches ctrl+c event
+process.on('SIGINT', () => bot.stop('SIGTERM'));
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', () => bot.stop('SIGTERM'));
+process.on('SIGUSR2', () => bot.stop('SIGTERM'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
+process.once('uncaughtException', (e) => {
+  console.log('[uncaughtException] app will be terminated: ', e.stack);
+  bot.stop('SIGTERM')
+
+  process.exit(0)
+})
