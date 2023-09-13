@@ -1,8 +1,6 @@
 import process from 'node:process';
 
 import fastify, {
-  // fastify,
-  FastifyInstance,
   FastifyListenOptions,
 } from "fastify";
 
@@ -13,15 +11,13 @@ const {
   NODE_ENV,
   BACKEND_URL,
   FASTTIFY_PORT,
-  BOT_PORT,
   BOT_TOKEN: token,
-  WEBHOOK_DOMAIN: webhookDomain,
+  // WEBHOOK_DOMAIN: webhookDomain,
 } = process.env;
 
 const isProd = NODE_ENV === "production"
 
 const port = parseInt(FASTTIFY_PORT || "3001", 10);
-const bot_port = parseInt(BOT_PORT || "3000", 10);
 const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
 const serverOpts: FastifyListenOptions = {
   port,
@@ -64,9 +60,7 @@ bot.on("message", ctx => {
   }
 });
 
-bot
-  .launch()
-  .then(() => console.log("Webhook bot listening on port", BOT_PORT));
+bot.launch();
 
 app.listen(serverOpts, (err, address) => {
   console.log("Listening on port", port)

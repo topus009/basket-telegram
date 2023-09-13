@@ -1,7 +1,7 @@
 {
-  "name": "fastify-hello-world",
+  "name": "basket-telegram",
   "version": "1.0.0",
-  "description": "A Fastify example to deploy to Render",
+  "description": "basket-telegram",
   "main": "/src/app.js",
   "scripts": {
     "dev": "nodemon",
@@ -14,14 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/render-examples/fastify-hello-world.git"
+    "directory": "apps/basket-telegram",
+    "url": "git+https://github.com/topus009/basket-telegram.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/render-examples/fastify-hello-world/issues"
+    "url": "https://github.com/topus009/basket-telegram/issues"
   },
-  "homepage": "https://github.com/render-examples/fastify-hello-world#readme",
+  "homepage": "https://github.com/topus009/basket-telegram#readme",
   "dependencies": {
     "axios": "^1.5.0",
     "dotenv": "^16.3.1",
