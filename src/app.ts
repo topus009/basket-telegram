@@ -10,14 +10,14 @@ import healthCheck from 'fastify-healthcheck';
 const {
   NODE_ENV,
   BACKEND_URL,
-  FASTTIFY_PORT,
+  PORT,
   BOT_TOKEN: token,
   // WEBHOOK_DOMAIN: webhookDomain,
 } = process.env;
 
 const isProd = NODE_ENV === "production"
 
-const port = parseInt(FASTTIFY_PORT || "3001", 10);
+const port = parseInt(PORT || "3001", 10);
 const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
 const serverOpts: FastifyListenOptions = {
   port,
