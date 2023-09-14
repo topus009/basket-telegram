@@ -1,7 +1,13 @@
 {
-  "watch": ["src"],
-  "ignore": ["src/**/*.test.ts", "node_modules"],
-  "ext": "ts,mjs,js,json,graphql",
-  "exec": "etsc && node ./dist/app.js",
+  "watch": [
+    "./src",
+    ".env.development"
+  ],
+  "ignore": [
+    "src/**/*.test.ts",
+    "node_modules"
+  ],
+  "ext": "ts,mjs,js,json,graphql,.env.development",
+  "exec": "etsc && node ./dist/src/app.js",
   "legacyWatch": true
 }

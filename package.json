@@ -1,12 +1,13 @@
 {
   "name": "basket-telegram",
   "version": "1.0.0",
+  "private": true,
   "description": "basket-telegram",
   "main": "/src/app.js",
   "scripts": {
     "dev": "nodemon",
     "build": "etsc",
-    "prod": "node dist/app.js",
+    "prod": "node dist/src/app.js",
     "start:dev": "npm run development dev",
     "start:prod": "npm run production prod",
     "production": "dotenv-run-script .env.production --",

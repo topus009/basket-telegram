@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    // "target": "esnext",
-    // "module": "esnext",
     "target": "esnext",
-    "module": "commonjs",
+    "module": "esnext",
+    // "target": "esnext",
+    // "module": "commonjs",
     "allowJs": true,
     "removeComments": true,
     "resolveJsonModule": true,
     "typeRoots": [
-      "./node_modules/@types"
+      "./node_modules/@types",
+      "./@types/*"
     ],
     "sourceMap": true,
     "outDir": "dist",
@@ -25,7 +26,8 @@
     "skipLibCheck": true,
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "@types",
   ],
   "exclude": [
     "node_modules"
