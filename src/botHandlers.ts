@@ -37,9 +37,13 @@ const sendChartPhoto = (ctx: Context) => {
 const handleGetChart = (bot: MY_BOT) => {
   bot.command("chart", ctx => {
     if (BACKEND_URL) {
-      return ctx.replyWithPhoto({
-        url: BACKEND_URL
-      })
+      try {
+        return ctx.replyWithPhoto({
+          url: BACKEND_URL
+        })
+      } catch (error) {
+        ctx.reply("Чтото не так с картинкой")
+      }
     } else {
       console.log(`BACKEND_URL is invalid`)
     }
@@ -48,31 +52,30 @@ const handleGetChart = (bot: MY_BOT) => {
 
 const handleReplyToMeUserMessages = (bot: MY_BOT) => {
   bot.on(message("text"), async (ctx) => {
-    // if (!isMyId(ctx.chat.id)) {
+    if (!isMyId(ctx.chat.id)) {
+      const message = `@${ctx.message.from.username} написал "${ctx.message.text}"`
+      ctx.telegram.sendMessage(MY_ID, message)
 
-    // }
-    const message = `@${ctx.message.from.username} написал "${ctx.message.text}"`
-    ctx.telegram.sendMessage(MY_ID, message)
+      const [player, points] = (ctx.message.text || "").split("=")
 
-    const [player, points] = (ctx.message.text || "").split("=")
+      if (players.includes(player as Players)) {
 
-    if (players.includes(player as Players)) {
+        const query = new URLSearchParams({player, points})
+        const queryString = query.toString()
 
-      const query = new URLSearchParams({player, points})
-      const queryString = query.toString()
+        try {
+          const res = await axios({
+            url: `${BACKEND_URL}/player?${queryString}`,
+            method: 'GET',
+          });
 
-      try {
-        const res = await axios({
-          url: `${BACKEND_URL}/player?${queryString}`,
-          method: 'GET',
-        });
+          ctx.reply(res?.data)
+        } catch (error) {
+          console.log(error)
+        }
 
-        ctx.reply(res?.data)
-      } catch (error) {
-        console.log(error)
+
       }
-
-
     }
   });
 }
