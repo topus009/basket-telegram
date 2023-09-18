@@ -1,25 +1,28 @@
-import {Composer, Markup, Scenes, session} from 'telegraf';
-import {InlineKeyboardButton} from "telegraf/typings/core/types/typegram";
-import {sendChartPhoto} from "./botHandlers";
+import {
+  Markup, Scenes,
+} from 'telegraf';
+// import { sendChartPhoto } from './botHandlers';
 
 const points: Points = {
-  nastya: "",
-  stepan: "",
-  sergey: "",
-}
+  nastya: '',
+  stepan: '',
+  sergey: '',
+};
 
-const getButton = (player: Players) => Markup.button.callback(player, player)
+const getButton = (player: Players) => Markup.button.callback(player, player);
 
-const getKeyboard = (): KEYBOARD => {
+const getKeyboard = (): IKeyboard => {
   const playerKeys = Object.keys(points) as Players[];
-  const buttons = playerKeys.map((player: Players) => {
+  const buttons = playerKeys.map((player: Players): ICbBtn | undefined => {
     if (!points[player as Players]) {
       return getButton(player);
     }
-  }).filter(Boolean) as CB_BUTTON[]
 
-  return buttons
-}
+    return undefined;
+  }).filter(Boolean) as ICbBtn[];
+
+  return buttons;
+};
 
 // const stepHandler = new Composer<Scenes.WizardContext>();
 // stepHandler.action("nastya", async ctx => {
@@ -36,45 +39,45 @@ const getKeyboard = (): KEYBOARD => {
 // );
 
 const newGameScene = new Scenes.WizardScene(
-  "newgame",
+  'newgame',
   async (ctx, next) => {
     await ctx.reply('Выберите игрока', Markup.inlineKeyboard([
       [
         ...getKeyboard(),
         // Markup.button.callback("Выйти", "exitGame")
       ],
-    ]))
+    ]));
     await ctx.scene.leave();
-    next()
+    next();
   },
 );
 
 const playerPointsScene = (player: string) => new Scenes.WizardScene(
   player,
-  async ctx => {
-    await ctx.reply('Введите очки в формате...')
-    await ctx.reply('10110 10110 10110 10110 10110')
+  async (ctx) => {
+    await ctx.reply('Введите очки в формате...');
+    await ctx.reply('10110 10110 10110 10110 10110');
     return ctx.wizard.next();
   },
-  async ctx => {
-    await ctx.reply(`Очки игрока "${player}" записаны`)
+  async (ctx) => {
+    await ctx.reply(`Очки игрока "${player}" записаны`);
     const leftBtns = getKeyboard();
 
     if (leftBtns?.length) {
-      return await ctx.reply('Осталось заполнить очки игроков', Markup.inlineKeyboard(leftBtns))
+      return ctx.reply('Осталось заполнить очки игроков', Markup.inlineKeyboard(leftBtns));
     }
 
-    Object.keys(points).forEach((player) => {
-      points[player as Players] = "";
+    Object.keys(points).forEach((playerName) => {
+      points[playerName as Players] = '';
     });
-    ctx.reply('Все очки записаны. Спасибо')
-    ctx.reply('Сейчас придет обновленный график')
+    ctx.reply('Все очки записаны. Спасибо');
+    ctx.reply('Сейчас придет обновленный график');
     // sendChartPhoto(ctx)
     return ctx.scene.leave();
   },
 );
 
-const playersGamesScenes = Object.keys(points).map(playerPointsScene)
+const playersGamesScenes = Object.keys(points).map(playerPointsScene);
 
 export {
   newGameScene,
@@ -82,4 +85,4 @@ export {
   points,
   getButton,
   getKeyboard,
-}
+};

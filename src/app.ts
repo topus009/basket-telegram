@@ -1,11 +1,13 @@
 import process from 'process';
-import fastify from "fastify";
-import {Composer, Markup, Scenes, session, Telegraf} from "telegraf";
-import {BotCommand} from '@telegraf/types'
+import fastify from 'fastify';
+import { Scenes, Telegraf } from 'telegraf';
+import { BotCommand } from 'telegraf/types';
 
-import {onNodeProcesses} from "./processHandlers";
-import {stopBotOnInit, handleGetChart, handleReplyToMeUserMessages, handleUserConnected, launchBot} from "./botHandlers";
-import {addHealthCheckToApp, serverListen} from "./appHandlers";
+import onNodeProcesses from './processHandlers';
+import {
+  stopBotOnInit, handleGetChart, handleReplyToMeUserMessages, handleUserConnected, launchBot,
+} from './botHandlers';
+import { addHealthCheckToApp, serverListen } from './appHandlers';
 
 const bot = new Telegraf<Scenes.WizardContext>(process.env.BOT_TOKEN);
 // bot.use(Telegraf.log());
@@ -13,7 +15,7 @@ const bot = new Telegraf<Scenes.WizardContext>(process.env.BOT_TOKEN);
 const app = fastify();
 
 // process init
-stopBotOnInit(bot)
+stopBotOnInit(bot);
 // bot scenes
 
 // bot commands
@@ -22,26 +24,22 @@ const commands: BotCommand[] = [
     command: 'chart',
     description: 'Показать график всех игр',
   },
-]
+];
 
 bot.telegram.setMyCommands(commands);
 
 // app routes
-addHealthCheckToApp(app)
-
+addHealthCheckToApp(app);
 
 // bot handlers
-handleUserConnected(bot)
-handleGetChart(bot)
+handleUserConnected(bot);
+handleGetChart(bot);
 
-
-handleReplyToMeUserMessages(bot)
-
-
+handleReplyToMeUserMessages(bot);
 
 // start
-launchBot(bot)
+launchBot(bot);
 // app start
-serverListen(app)
+serverListen(app);
 // process handlers
-onNodeProcesses(bot)
+onNodeProcesses(bot);

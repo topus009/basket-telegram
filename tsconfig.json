@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     "typeRoots": [
       "./node_modules/@types",
-      "./@types/*"
+      "./@types"
     ],
     "sourceMap": true,
     "outDir": "dist",
@@ -17,7 +17,7 @@
     "lib": [
       "esnext"
     ],
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
@@ -27,7 +27,7 @@
   },
   "include": [
     "src/**/*",
-    "@types",
+    "@types/*"
   ],
   "exclude": [
     "node_modules"

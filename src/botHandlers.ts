@@ -1,67 +1,66 @@
-import {Context} from "telegraf";
-import {message} from "telegraf/filters"
-import {Chat} from "telegraf/typings/core/types/typegram";
+import { Context } from 'telegraf';
+import { message } from 'telegraf/filters';
+import type { Chat } from 'telegraf/typings/core/types/typegram';
 import axios from 'axios';
 
 const players: Players[] = [
-  "nastya",
-  "stepan",
-  "sergey",
-]
+  'nastya',
+  'stepan',
+  'sergey',
+];
 
 const {
   MY_ID,
-  BACKEND_URL
+  BACKEND_URL,
 } = process.env;
 
-const isMyId = (id: Chat.AbstractChat["id"]) => `${id}` === MY_ID;
+const isMyId = (id: Chat.AbstractChat['id']) => `${id}` === MY_ID;
 
-const stopBotOnInit = (bot: MY_BOT) => {
+const stopBotOnInit = (bot: IBot) => {
   try {
-    bot.stop('INIT')
+    bot.stop('INIT');
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
-const sendChartPhoto = (ctx: Context) => {
+const sendChartPhoto = (ctx: Context): (ReturnType<Context['sendPhoto']> | void) => {
   if (BACKEND_URL) {
     return ctx.replyWithPhoto({
-      url: BACKEND_URL
-    })
-  } else {
-    console.log(`BACKEND_URL is invalid`)
+      url: BACKEND_URL,
+    });
   }
-}
 
-const handleGetChart = (bot: MY_BOT) => {
-  bot.command("chart", ctx => {
+  return console.log('BACKEND_URL is invalid');
+};
+
+const handleGetChart = (bot: IBot) => {
+  bot.command('chart', (ctx): (ReturnType<Context['sendPhoto' | 'reply']> | void) => {
     if (BACKEND_URL) {
       try {
         return ctx.replyWithPhoto({
-          url: BACKEND_URL
-        })
+          url: BACKEND_URL,
+        });
       } catch (error) {
-        ctx.reply("Чтото не так с картинкой")
+        return ctx.reply('Чтото не так с картинкой');
       }
     } else {
-      console.log(`BACKEND_URL is invalid`)
+      return console.log('BACKEND_URL is invalid');
     }
   });
-}
+};
 
-const handleReplyToMeUserMessages = (bot: MY_BOT) => {
-  bot.on(message("text"), async (ctx) => {
+const handleReplyToMeUserMessages = (bot: IBot) => {
+  bot.on(message('text'), async (ctx) => {
     if (!isMyId(ctx.chat.id)) {
-      const message = `@${ctx.message.from.username} написал "${ctx.message.text}"`
-      ctx.telegram.sendMessage(MY_ID, message)
+      const msg = `@${ctx.message.from.username} написал "${ctx.message.text}"`;
+      ctx.telegram.sendMessage(MY_ID, msg);
 
-      const [player, points] = (ctx.message.text || "").split("=")
+      const [player, points] = (ctx.message.text || '').split('=');
 
       if (players.includes(player as Players)) {
-
-        const query = new URLSearchParams({player, points})
-        const queryString = query.toString()
+        const query = new URLSearchParams({ player, points });
+        const queryString = query.toString();
 
         try {
           const res = await axios({
@@ -69,36 +68,34 @@ const handleReplyToMeUserMessages = (bot: MY_BOT) => {
             method: 'GET',
           });
 
-          ctx.reply(res?.data)
+          ctx.reply(res?.data);
         } catch (error) {
-          console.log(error)
+          console.log(error);
         }
-
-
       }
     }
   });
-}
+};
 
-const handleUserConnected = (bot: MY_BOT) => {
+const handleUserConnected = (bot: IBot) => {
   bot.start((ctx) => {
     if (!isMyId(ctx.chat.id)) {
-      const message = `@${ctx.message.from.username} присоеденился`
-      ctx.telegram.sendMessage(MY_ID, message)
+      const msg = `@${ctx.message.from.username} присоеденился`;
+      ctx.telegram.sendMessage(MY_ID, msg);
     }
 
-    ctx.reply(`Welcome @${ctx.message.from.username}`)
+    ctx.reply(`Welcome @${ctx.message.from.username}`);
   });
-}
+};
 
-const launchBot = (bot: MY_BOT) => {
+const launchBot = (bot: IBot) => {
   bot.launch().then(() => {
-    console.log("Bot launched")
+    console.log('Bot launched');
   }).catch((error) => {
-    console.log("Bot launch failed")
-    console.log(error)
+    console.log('Bot launch failed');
+    console.log(error);
   });
-}
+};
 
 export {
   handleReplyToMeUserMessages,
@@ -107,4 +104,4 @@ export {
   handleUserConnected,
   launchBot,
   sendChartPhoto,
-}
+};

@@ -47,13 +47,13 @@
 // bot.use(session());
 // bot.use(stage.middleware());
 // =============================================================================
-// const handleNewGame = (bot: MY_BOT) => {
+// const handleNewGame = (bot: IBot) => {
 //   bot.command("newgame", async ctx => {
 //     return await ctx.scene.enter("newgame");
 //   });
 // }
 
-// const handleExitGame = (bot: MY_BOT) => {
+// const handleExitGame = (bot: IBot) => {
 //   bot.command("exitGame", async (ctx, next) => {
 //     ctx.scene.leave('newgame');
 //     return next()
