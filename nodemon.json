@@ -1,11 +1,10 @@
 {
   "watch": [
     "./src",
-    "../../.env.development",
-    "../../.env.telegram.development"
+    "../../.env.development"
   ],
   "ignore": ["src/**/*.test.ts", "node_modules"],
   "legacyWatch": true,
-  "ext": "ts,mjs,js,json,graphql,.env.development,.env.telegram.development",
-  "exec": "etsc && npx dotenv-cli -e ../../.env.development -e ../../.env.telegram.development -- node ./dist/src/app.js"
+  "ext": "ts,mjs,js,json,graphql,.env.development",
+  "exec": "etsc && npx dotenv-cli -e ../../.env.development -- node ./dist/src/app.js"
 }

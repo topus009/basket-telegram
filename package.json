@@ -11,7 +11,7 @@
     "start:dev": "npm run development dev",
     "start:prod": "npm run production prod",
     "production": "dotenv-run-script /etc/secrets/.env.production --",
-    "development": "dotenv-run-script ../../.env.telegram.development ../../.env.development --"
+    "development": "dotenv-run-script ../../.env.development --"
   },
   "repository": {
     "type": "git",
