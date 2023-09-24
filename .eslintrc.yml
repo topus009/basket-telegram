@@ -10,8 +10,8 @@ parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: 15
   sourceType: module
-   project: tsconfig.json,
-   tsconfigRootDir: __dirname
+  project: tsconfig.json
+  #  tsconfigRootDir: __dirname
 plugins:
   - '@typescript-eslint'
   - 'eslint-plugin-node'

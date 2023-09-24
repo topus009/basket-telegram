@@ -1,7 +1,16 @@
+import vega from 'vega';
+import lite, { TopLevelSpec } from 'vega-lite';
+import sharp from 'sharp';
+
 import { Context } from 'telegraf';
 import { message } from 'telegraf/filters';
 import type { Chat } from 'telegraf/typings/core/types/typegram';
-import axios from 'axios';
+
+import chartScheme from './chartScheme';
+import chartConfig from './chartConfig';
+
+import knex from './knex/knex';
+import prepareChartConfig from './prepareChartConfig';
 
 const players: Players[] = [
   'nastya',
@@ -11,8 +20,27 @@ const players: Players[] = [
 
 const {
   MY_ID,
-  BACKEND_URL,
 } = process.env;
+
+const render = async () => {
+  const games = await knex.select().from('games');
+  const chartData = await prepareChartConfig(games);
+  const vegaspec = lite.compile({
+    ...chartScheme,
+    data: {
+      values: chartData,
+    },
+  } as TopLevelSpec).spec;
+  // console.log({ chartData });
+  const view = new vega.View(
+    vega.parse(vegaspec, chartConfig),
+    { renderer: 'none' },
+  );
+
+  const svg = await view.toSVG();
+
+  return sharp(Buffer.from(svg)).toFormat('png');
+};
 
 const isMyId = (id: Chat.AbstractChat['id']) => `${id}` === MY_ID;
 
@@ -24,28 +52,28 @@ const stopBotOnInit = (bot: IBot) => {
   }
 };
 
-const sendChartPhoto = (ctx: Context): (ReturnType<Context['sendPhoto']> | void) => {
-  if (BACKEND_URL) {
-    return ctx.replyWithPhoto({
-      url: BACKEND_URL,
-    });
-  }
+// const sendChartPhoto = async (ctx: Context): Promise<(ReturnType<Context['sendPhoto']> | void)> => {
+//   const res = await render();
 
-  return console.log('BACKEND_URL is invalid');
-};
+//   return await ctx.replyWithPhoto({
+//     source: res,
+//     filename: 'chart.png',
+//   });
+// };
 
 const handleGetChart = (bot: IBot) => {
-  bot.command('chart', (ctx): (ReturnType<Context['sendPhoto' | 'reply']> | void) => {
-    if (BACKEND_URL) {
-      try {
-        return ctx.replyWithPhoto({
-          url: BACKEND_URL,
-        });
-      } catch (error) {
-        return ctx.reply('Чтото не так с картинкой');
-      }
-    } else {
-      return console.log('BACKEND_URL is invalid');
+  bot.command('chart', async (ctx): Promise<(ReturnType<Context['sendPhoto' | 'reply']> | void)> => {
+    try {
+      // return await sendChartPhoto(ctx);
+      const res = await render();
+
+      return await ctx.replyWithPhoto({
+        source: res,
+        filename: 'chart.png',
+      });
+    } catch (error) {
+      console.log(error);
+      return ctx.reply('Чтото не так с картинкой');
     }
   });
 };
@@ -59,16 +87,57 @@ const handleReplyToMeUserMessages = (bot: IBot) => {
       const [player, points] = (ctx.message.text || '').split('=');
 
       if (players.includes(player as Players)) {
-        const query = new URLSearchParams({ player, points });
-        const queryString = query.toString();
+        // const query = new URLSearchParams({ player, points });
+        // const queryString = query.toString();
 
         try {
-          const res = await axios({
-            url: `${BACKEND_URL}/player?${queryString}`,
-            method: 'GET',
-          });
+          const [lastMaxId] = await knex('games').max('id');
+          const id = Number(lastMaxId?.max);
+          const queryPoints = points.split('_').reduce((acc, it, index) => {
+            acc[index + 1] = it.split('').map(Number);
 
-          ctx.reply(res?.data);
+            return acc;
+          }, {} as PointInDB);
+
+          const preparedPoints = JSON.stringify(queryPoints);
+          const preparedData = {
+            [player]: preparedPoints,
+          };
+
+          // ==============================================
+          // await knex('games').delete().where({id: 7});
+          // return;
+          // ==============================================
+          const editedRow = await knex('games').select().where({ id }).first();
+
+          if (!editedRow) {
+            return await ctx.reply('Ни одна запись в таблице не найдена');
+          }
+
+          const leftPlayers = Object.keys(editedRow).filter((it) => it !== player && it !== 'id' && !editedRow[it]);
+
+          if (editedRow[player]) {
+            // Очки игрока уже записаны. Смотрим что у других
+            const allPlayersHasPoints = leftPlayers.every((it) => editedRow[it]);
+
+            if (allPlayersHasPoints) {
+              // Делаем новую запись
+              const newId = id + 1;
+              await knex('games').insert({ ...preparedData, id: newId });
+              return await ctx.reply(`Очки игрока "${player}" записаны. Создана новая запись`);
+            }
+            return await ctx.reply(`Очки игрока "${player}" уже записаны. Осталось записать игроков "${leftPlayers.filter((it) => it !== player).join(', ')}"`);
+          }
+          // Уже есть запись в которой нет игрока
+          await knex('games').update(preparedData).where({ id });
+          const leftPlayersAfter = leftPlayers.filter((it) => it !== player);
+
+          if (leftPlayersAfter.length) {
+            return await ctx.reply(`Очки игрока "${player}" записаны в текущую игру. Осталось записать игроков "${leftPlayers.filter((it) => it !== player).join(', ')}"`);
+          }
+          return await ctx.reply(`Очки игрока "${player}" записаны в текущую игру. Все очки всех игроков записаны. Спасибо`);
+
+          // ctx.reply(res?.data);
         } catch (error) {
           console.log(error);
         }
@@ -103,5 +172,5 @@ export {
   handleGetChart,
   handleUserConnected,
   launchBot,
-  sendChartPhoto,
+  // sendChartPhoto,
 };

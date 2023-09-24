@@ -22,6 +22,19 @@ declare global {
 
   type ICbBtn = ReturnType<typeof Markup.button.callback>;
   type IKeyboard = ICbBtn[];
+
+  type Point = {
+    game: number,
+    player: string,
+    point: number,
+  };
+
+  type Query = {
+    player: string
+    points: string
+  };
+
+  type PointInDB = Record<string, number[]>;
 }
 
 export { };
