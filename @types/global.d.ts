@@ -9,6 +9,7 @@ declare global {
       PORT: string
       MY_ID: string
       BOT_TOKEN: string
+      DB_URL: string
     }
   }
 

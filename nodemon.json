@@ -1,10 +1,10 @@
 {
   "watch": [
     "./src",
-    "../../.env.development"
+    "./.env.development"
   ],
   "ignore": ["src/**/*.test.ts", "node_modules"],
   "legacyWatch": true,
   "ext": "ts,mjs,js,json,graphql,.env.development",
-  "exec": "etsc && npx dotenv-cli -e ../../.env.development -- node ./dist/src/app.js"
+  "exec": "etsc && npx dotenv-cli -e ./.env.development -- node ./dist/src/app.js"
 }

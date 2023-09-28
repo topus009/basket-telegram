@@ -10,14 +10,20 @@ const handleExit = (bot: IBot, message = 'exit') => (e: Error) => {
   process.exit(1);
 };
 
-const onNodeProcesses = (bot: IBot) => {
-  process.on('exit', handleExit(bot));
+const PROCESS_EVENTS = [
+  'exit',
   // catches ctrl+c event
-  process.on('SIGINT', handleExit(bot));
+  'SIGINT',
   // catches "kill pid" (for example: nodemon restart)
-  process.on('SIGUSR1', handleExit(bot));
-  process.on('SIGUSR2', handleExit(bot));
-  process.on('SIGTERM', handleExit(bot));
+  'SIGUSR1',
+  'SIGUSR2',
+  'SIGTERM',
+];
+
+const onNodeProcesses = (bot: IBot) => {
+  PROCESS_EVENTS.forEach((event) => {
+    process.on(event, handleExit(bot, event));
+  });
 };
 
 export default onNodeProcesses;

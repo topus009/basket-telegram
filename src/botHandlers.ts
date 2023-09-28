@@ -52,7 +52,8 @@ const stopBotOnInit = (bot: IBot) => {
   }
 };
 
-// const sendChartPhoto = async (ctx: Context): Promise<(ReturnType<Context['sendPhoto']> | void)> => {
+// const sendChartPhoto = async (ctx: Context)
+// : Promise<(ReturnType<Context['sendPhoto']> | void)> => {
 //   const res = await render();
 
 //   return await ctx.replyWithPhoto({
