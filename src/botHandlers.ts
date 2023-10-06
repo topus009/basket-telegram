@@ -81,67 +81,69 @@ const handleGetChart = (bot: IBot) => {
 
 const handleReplyToMeUserMessages = (bot: IBot) => {
   bot.on(message('text'), async (ctx) => {
-    if (!isMyId(ctx.chat.id)) {
-      const msg = `@${ctx.message.from.username} написал "${ctx.message.text}"`;
-      ctx.telegram.sendMessage(MY_ID, msg);
+    // if (!isMyId(ctx.chat.id)) {
 
-      const [player, points] = (ctx.message.text || '').split('=');
+    // }
 
-      if (players.includes(player as Players)) {
-        // const query = new URLSearchParams({ player, points });
-        // const queryString = query.toString();
+    const msg = `@${ctx.message.from.username} написал "${ctx.message.text}"`;
+    ctx.telegram.sendMessage(MY_ID, msg);
 
-        try {
-          const [lastMaxId] = await knex('games').max('id');
-          const id = Number(lastMaxId?.max);
-          const queryPoints = points.split('_').reduce((acc, it, index) => {
-            acc[index + 1] = it.split('').map(Number);
+    const [player, points] = (ctx.message.text || '').split('=');
 
-            return acc;
-          }, {} as PointInDB);
+    if (players.includes(player as Players)) {
+      // const query = new URLSearchParams({ player, points });
+      // const queryString = query.toString();
 
-          const preparedPoints = JSON.stringify(queryPoints);
-          const preparedData = {
-            [player]: preparedPoints,
-          };
+      try {
+        const [lastMaxId] = await knex('games').max('id');
+        const id = Number(lastMaxId?.max);
+        const queryPoints = points.split('_').reduce((acc, it, index) => {
+          acc[index + 1] = it.split('').map(Number);
 
-          // ==============================================
-          // await knex('games').delete().where({id: 7});
-          // return;
-          // ==============================================
-          const editedRow = await knex('games').select().where({ id }).first();
+          return acc;
+        }, {} as PointInDB);
 
-          if (!editedRow) {
-            return await ctx.reply('Ни одна запись в таблице не найдена');
-          }
+        const preparedPoints = JSON.stringify(queryPoints);
+        const preparedData = {
+          [player]: preparedPoints,
+        };
 
-          const leftPlayers = Object.keys(editedRow).filter((it) => it !== player && it !== 'id' && !editedRow[it]);
+        // ==============================================
+        // await knex('games').delete().where({id: 7});
+        // return;
+        // ==============================================
+        const editedRow = await knex('games').select().where({ id }).first();
 
-          if (editedRow[player]) {
-            // Очки игрока уже записаны. Смотрим что у других
-            const allPlayersHasPoints = leftPlayers.every((it) => editedRow[it]);
-
-            if (allPlayersHasPoints) {
-              // Делаем новую запись
-              const newId = id + 1;
-              await knex('games').insert({ ...preparedData, id: newId });
-              return await ctx.reply(`Очки игрока "${player}" записаны. Создана новая запись`);
-            }
-            return await ctx.reply(`Очки игрока "${player}" уже записаны. Осталось записать игроков "${leftPlayers.filter((it) => it !== player).join(', ')}"`);
-          }
-          // Уже есть запись в которой нет игрока
-          await knex('games').update(preparedData).where({ id });
-          const leftPlayersAfter = leftPlayers.filter((it) => it !== player);
-
-          if (leftPlayersAfter.length) {
-            return await ctx.reply(`Очки игрока "${player}" записаны в текущую игру. Осталось записать игроков "${leftPlayers.filter((it) => it !== player).join(', ')}"`);
-          }
-          return await ctx.reply(`Очки игрока "${player}" записаны в текущую игру. Все очки всех игроков записаны. Спасибо`);
-
-          // ctx.reply(res?.data);
-        } catch (error) {
-          console.log(error);
+        if (!editedRow) {
+          return await ctx.reply('Ни одна запись в таблице не найдена');
         }
+
+        const leftPlayers = Object.keys(editedRow).filter((it) => it !== player && it !== 'id' && !editedRow[it]);
+
+        if (editedRow[player]) {
+          // Очки игрока уже записаны. Смотрим что у других
+          const allPlayersHasPoints = leftPlayers.every((it) => editedRow[it]);
+
+          if (allPlayersHasPoints) {
+            // Делаем новую запись
+            const newId = id + 1;
+            await knex('games').insert({ ...preparedData, id: newId });
+            return await ctx.reply(`Очки игрока "${player}" записаны. Создана новая запись`);
+          }
+          return await ctx.reply(`Очки игрока "${player}" уже записаны. Осталось записать игроков "${leftPlayers.filter((it) => it !== player).join(', ')}"`);
+        }
+        // Уже есть запись в которой нет игрока
+        await knex('games').update(preparedData).where({ id });
+        const leftPlayersAfter = leftPlayers.filter((it) => it !== player);
+
+        if (leftPlayersAfter.length) {
+          return await ctx.reply(`Очки игрока "${player}" записаны в текущую игру. Осталось записать игроков "${leftPlayers.filter((it) => it !== player).join(', ')}"`);
+        }
+        return await ctx.reply(`Очки игрока "${player}" записаны в текущую игру. Все очки всех игроков записаны. Спасибо`);
+
+        // ctx.reply(res?.data);
+      } catch (error) {
+        console.log(error);
       }
     }
   });
